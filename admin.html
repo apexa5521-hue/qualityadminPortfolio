@@ -157,7 +157,8 @@
         { name: 'Title', label: 'اسم المشروع', type: 'text' },
         { name: 'Description', label: 'الوصف', type: 'textarea' },
         { name: 'Tags', label: 'التقنيات (مفصولة بفاصلة)', type: 'text' },
-        { name: 'Link', label: 'الرابط', type: 'text' },
+        { name: 'Link', label: 'رابط المعاينة (الصفحة الحية)', type: 'text' },
+        { name: 'ResultsLink', label: 'رابط النتائج (Google Sheet) — اختياري', type: 'text' },
         { name: 'Order', label: 'الترتيب', type: 'number' },
       ],
       summary: item => `${item.Title || ''}`
