@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم — تعديل المحتوى | لا تشارك هذا الرابط</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@500;600;700&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: { navy:{950:'#060F24',900:'#0A1F44',800:'#12305C',700:'#1B3E73'}, teal:{400:'#3FD4C4',500:'#1FB6A6',600:'#149385'} },
+      fontFamily: { display:['"IBM Plex Sans Arabic"','sans-serif'], body:['Tajawal','sans-serif'], mono:['"IBM Plex Mono"','monospace'] }
+    }}
+  }
+</script>
+<style>
+  body { font-family:'Tajawal',sans-serif; }
+  .font-display { font-family:'IBM Plex Sans Arabic',sans-serif; }
+  input, textarea { font-family:'Tajawal',sans-serif; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<!-- =====================================================================
+     تنبيه: هذه صفحة إدارة خاصة. لا تربطها من الموقع العام (index.html)،
+     ولا تشاركها أو تفهرسها في محركات البحث. الحماية الفعلية تتم عبر
+     رمز PIN الذي يتحقق منه الخادم (Code.gs) قبل أي تعديل على الشيت.
+     ===================================================================== -->
+<script>
+  const GAS_WEB_APP_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+</script>
+
+<!-- iframe مخفي: كل النماذج ترسل عبره لتفادي مشاكل CORS -->
+<iframe name="hidden_iframe" style="display:none"></iframe>
+
+<!-- =====================================================================
+     شاشة الدخول برمز PIN
+     ===================================================================== -->
+<div id="pin-gate" class="min-h-screen flex items-center justify-center px-5">
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 w-full max-w-sm text-center">
+    <div class="w-12 h-12 rounded-xl bg-navy-900 text-teal-400 flex items-center justify-center mx-auto font-display font-bold">🔒</div>
+    <h1 class="font-display font-bold text-xl mt-4">لوحة تعديل المحتوى</h1>
+    <p class="text-sm text-slate-500 mt-1">أدخل رمز الدخول للمتابعة</p>
+    <input id="pin-input" type="password" inputmode="numeric" class="mt-5 w-full text-center tracking-[0.5em] font-mono text-lg border border-slate-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="••••">
+    <button id="pin-submit" class="mt-4 w-full bg-navy-900 hover:bg-navy-800 text-white font-display font-semibold rounded-lg py-3 transition-colors">دخول</button>
+    <p id="pin-error" class="text-red-500 text-xs mt-3 hidden">رمز غير صحيح</p>
+  </div>
+</div>
+
+<!-- =====================================================================
+     لوحة التحكم (تظهر بعد إدخال الـ PIN بنجاح)
+     ===================================================================== -->
+<div id="dashboard" class="hidden">
+  <header class="bg-navy-950 text-white sticky top-0 z-40 border-b border-white/10">
+    <div class="max-w-4xl mx-auto px-5 py-4 flex items-center justify-between">
+      <h1 class="font-display font-bold text-base">لوحة تعديل البورتفوليو</h1>
+      <a href="index.html" target="_blank" class="text-xs text-teal-300 border border-teal-400/40 rounded-full px-4 py-1.5 hover:bg-teal-400/10">فتح الصفحة العامة ↗</a>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-5 py-10 space-y-16">
+
+    <!-- toast للتنبيهات -->
+    <div id="toast" class="hidden fixed bottom-6 inset-x-0 z-50 flex justify-center px-4">
+      <div id="toast-box" class="rounded-xl px-5 py-3 text-sm font-medium shadow-lg"></div>
+    </div>
+
+    <!-- =================================================================
+         قسم: النبذة الشخصية (Bio) — سجل واحد فقط
+         ================================================================= -->
+    <section>
+      <h2 class="font-display font-bold text-lg mb-4">النبذة الشخصية</h2>
+      <form id="bio-form" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4" target="hidden_iframe" method="POST" action="PASTE_YOUR_WEB_APP_URL_HERE">
+        <input type="hidden" name="action" value="saveBio">
+        <input type="hidden" name="pin" class="pin-field">
+        <div>
+          <label class="text-xs font-medium text-slate-500">الاسم</label>
+          <input name="Name" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-500">المسمى الوظيفي</label>
+          <input name="Title" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-500">ملخص الترويسة (Hero)</label>
+          <textarea name="HeroSummary" rows="2" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-500">نص قسم "نبذة عني"</label>
+          <textarea name="AboutText" rows="4" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-500">مجالات التركيز (مفصولة بفاصلة)</label>
+          <input name="Highlights" placeholder="الجودة والاعتماد, التحول الرقمي, ..." class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+        </div>
+        <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white text-sm font-display font-semibold rounded-lg px-5 py-2.5">حفظ النبذة</button>
+      </form>
+    </section>
+
+    <!-- =================================================================
+         الأقسام المتكررة (KPIs / Projects / Initiatives / Timeline)
+         تُبنى ديناميكياً من RESOURCES config في JS بالأسفل
+         ================================================================= -->
+    <div id="resource-sections" class="space-y-16"></div>
+
+  </main>
+</div>
+
+<script>
+  // =====================================================================
+  // إعداد PIN محلياً لهذه الجلسة فقط (يُتحقق منه فعلياً في Code.gs)
+  // =====================================================================
+  let CURRENT_PIN = '';
+
+  document.getElementById('pin-submit').addEventListener('click', tryPin);
+  document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryPin(); });
+
+  function tryPin() {
+    const val = document.getElementById('pin-input').value.trim();
+    if (!val) return;
+    CURRENT_PIN = val;
+    document.querySelectorAll('.pin-field').forEach(f => f.value = CURRENT_PIN);
+    document.getElementById('pin-gate').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    buildResourceSections();
+    loadAllData();
+    // ملاحظة: لا يوجد تحقق حقيقي من الرمز هنا بالمتصفح — أي خطأ في الرمز
+    // سيظهر كرسالة "رمز الدخول غير صحيح" عند أول محاولة حفظ فعلية
+  }
+
+  // =====================================================================
+  // إعداد الموارد القابلة للتكرار: KPIs / Projects / Initiatives / Timeline
+  // لإضافة نوع محتوى جديد بالكامل: أضف كائن جديد لهذه المصفوفة
+  // =====================================================================
+  const RESOURCES = [
+    {
+      key: 'kpis', sheet: 'KPIs', title: 'مؤشرات الأداء (KPIs)',
+      fields: [
+        { name: 'Value', label: 'القيمة', type: 'number' },
+        { name: 'Suffix', label: 'اللاحقة (مثل +)', type: 'text' },
+        { name: 'Label', label: 'التسمية', type: 'text' },
+        { name: 'Order', label: 'الترتيب', type: 'number' },
+      ],
+      summary: item => `<span class="font-mono">${item.Value || ''}${item.Suffix || ''}</span> — ${item.Label || ''}`
+    },
+    {
+      key: 'projects', sheet: 'Projects', title: 'الأنظمة والمشاريع',
+      fields: [
+        { name: 'Icon', label: 'رمز مختصر (حرفين)', type: 'text' },
+        { name: 'Title', label: 'اسم المشروع', type: 'text' },
+        { name: 'Description', label: 'الوصف', type: 'textarea' },
+        { name: 'Tags', label: 'التقنيات (مفصولة بفاصلة)', type: 'text' },
+        { name: 'Link', label: 'الرابط', type: 'text' },
+        { name: 'Order', label: 'الترتيب', type: 'number' },
+      ],
+      summary: item => `${item.Title || ''}`
+    },
+    {
+      key: 'initiatives', sheet: 'Initiatives', title: 'المبادرات الاستراتيجية',
+      fields: [
+        { name: 'Number', label: 'الرقم (01، 02...)', type: 'text' },
+        { name: 'Title', label: 'العنوان', type: 'text' },
+        { name: 'Description', label: 'الوصف', type: 'textarea' },
+        { name: 'Order', label: 'الترتيب', type: 'number' },
+      ],
+      summary: item => `${item.Title || ''}`
+    },
+    {
+      key: 'timeline', sheet: 'Timeline', title: 'سجل الإنجازات (Timeline)',
+      fields: [
+        { name: 'Period', label: 'التاريخ / الفترة', type: 'text' },
+        { name: 'Title', label: 'العنوان', type: 'text' },
+        { name: 'Description', label: 'الوصف', type: 'textarea' },
+        { name: 'Order', label: 'الترتيب', type: 'number' },
+      ],
+      summary: item => `<span class="font-mono">${item.Period || ''}</span> — ${item.Title || ''}`
+    },
+  ];
+
+  let DATA_CACHE = {};
+
+  function buildResourceSections() {
+    const wrap = document.getElementById('resource-sections');
+    wrap.innerHTML = RESOURCES.map(res => `
+      <section id="section-${res.key}">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display font-bold text-lg">${res.title}</h2>
+          <button type="button" class="new-btn text-xs font-medium text-teal-700 border border-teal-200 bg-teal-50 rounded-full px-3 py-1.5" data-key="${res.key}">+ إضافة جديد</button>
+        </div>
+
+        <div id="list-${res.key}" class="space-y-2 mb-5"></div>
+
+        <form id="form-${res.key}" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4" target="hidden_iframe" method="POST" action="${GAS_WEB_APP_URL}">
+          <input type="hidden" name="action" value="upsertItem">
+          <input type="hidden" name="sheet" value="${res.sheet}">
+          <input type="hidden" name="pin" class="pin-field">
+          <input type="hidden" name="id" class="id-field">
+          ${res.fields.map(f => `
+            <div>
+              <label class="text-xs font-medium text-slate-500">${f.label}</label>
+              ${f.type === 'textarea'
+                ? `<textarea name="${f.name}" rows="3" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"></textarea>`
+                : `<input name="${f.name}" type="${f.type}" class="mt-1 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">`}
+            </div>
+          `).join('')}
+          <div class="flex items-center gap-3 pt-1">
+            <button type="submit" class="bg-navy-900 hover:bg-navy-800 text-white text-sm font-display font-semibold rounded-lg px-5 py-2.5">حفظ</button>
+            <button type="button" class="cancel-edit-btn text-sm text-slate-500 hover:text-slate-700" data-key="${res.key}">إلغاء التعديل</button>
+          </div>
+        </form>
+      </section>
+    `).join('');
+
+    wrap.querySelectorAll('.new-btn').forEach(btn => btn.addEventListener('click', () => resetForm(btn.dataset.key)));
+    wrap.querySelectorAll('.cancel-edit-btn').forEach(btn => btn.addEventListener('click', () => resetForm(btn.dataset.key)));
+  }
+
+  function resetForm(key) {
+    const form = document.getElementById(`form-${key}`);
+    form.reset();
+    form.querySelector('.id-field').value = '';
+  }
+
+  function fillForm(key, item) {
+    const form = document.getElementById(`form-${key}`);
+    form.querySelector('.id-field').value = item.ID || '';
+    RESOURCES.find(r => r.key === key).fields.forEach(f => {
+      const el = form.querySelector(`[name="${f.name}"]`);
+      if (el) el.value = item[f.name] || '';
+    });
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function renderList(key, items) {
+    const res = RESOURCES.find(r => r.key === key);
+    const container = document.getElementById(`list-${key}`);
+    if (!items.length) {
+      container.innerHTML = `<p class="text-sm text-slate-400 px-1">لا توجد عناصر بعد.</p>`;
+      return;
+    }
+    container.innerHTML = items.map(item => `
+      <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl px-4 py-3">
+        <p class="text-sm text-slate-700">${res.summary(item)}</p>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" class="edit-item text-xs text-navy-800 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50" data-key="${key}" data-id="${item.ID}">تعديل</button>
+          <button type="button" class="delete-item text-xs text-red-600 border border-red-100 rounded-lg px-3 py-1.5 hover:bg-red-50" data-key="${key}" data-id="${item.ID}">حذف</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.edit-item').forEach(btn => btn.addEventListener('click', () => {
+      const item = DATA_CACHE[btn.dataset.key].find(i => String(i.ID) === btn.dataset.id);
+      if (item) fillForm(btn.dataset.key, item);
+    }));
+    container.querySelectorAll('.delete-item').forEach(btn => btn.addEventListener('click', () => {
+      if (!confirm('تأكيد حذف هذا العنصر؟')) return;
+      submitDelete(RESOURCES.find(r => r.key === btn.dataset.key).sheet, btn.dataset.id);
+    }));
+  }
+
+  function submitDelete(sheet, id) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.target = 'hidden_iframe';
+    form.action = GAS_WEB_APP_URL;
+    form.style.display = 'none';
+    [['action', 'deleteItem'], ['sheet', sheet], ['id', id], ['pin', CURRENT_PIN]].forEach(([n, v]) => {
+      const input = document.createElement('input');
+      input.name = n; input.value = v;
+      form.appendChild(input);
+    });
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(() => form.remove(), 500);
+  }
+
+  // كل نماذج upsert/save تُرسل إلى GAS_WEB_APP_URL مباشرة
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('bio-form').action = GAS_WEB_APP_URL;
+  });
+
+  // =====================================================================
+  // استقبال نتيجة الحفظ/الحذف من Code.gs (عبر postMessage من الـ iframe)
+  // =====================================================================
+  window.addEventListener('message', (event) => {
+    const res = event.data;
+    if (!res || typeof res.success === 'undefined') return;
+    if (res.success) {
+      showToast('تم الحفظ بنجاح ✓', 'success');
+      loadAllData();
+      RESOURCES.forEach(r => resetForm(r.key));
+    } else {
+      showToast(res.error || 'حدث خطأ غير متوقع', 'error');
+    }
+  });
+
+  function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    const box = document.getElementById('toast-box');
+    box.textContent = msg;
+    box.className = 'rounded-xl px-5 py-3 text-sm font-medium shadow-lg ' +
+      (type === 'success' ? 'bg-teal-600 text-white' : 'bg-red-600 text-white');
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+  }
+
+  // =====================================================================
+  // تحميل البيانات الحالية (JSONP) لعرضها في القوائم
+  // =====================================================================
+  function loadAllData() {
+    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.indexOf('PASTE_YOUR') === 0) {
+      showToast('لم يتم ربط رابط Web App بعد', 'error');
+      return;
+    }
+    const cbName = 'onAdminData_' + Date.now();
+    window[cbName] = function (data) {
+      const bio = data.bio || {};
+      Object.keys(bio).forEach(k => {
+        const el = document.querySelector(`#bio-form [name="${k}"]`);
+        if (el) el.value = bio[k];
+      });
+      DATA_CACHE = { kpis: data.kpis || [], projects: data.projects || [], initiatives: data.initiatives || [], timeline: data.timeline || [] };
+      RESOURCES.forEach(r => renderList(r.key, DATA_CACHE[r.key]));
+      delete window[cbName];
+      script.remove();
+    };
+    const script = document.createElement('script');
+    script.src = GAS_WEB_APP_URL + '?action=getData&callback=' + cbName;
+    document.body.appendChild(script);
+  }
+</script>
+
+</body>
+</html>
