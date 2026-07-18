@@ -30,6 +30,8 @@
      ===================================================================== -->
 <script>
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_Gt4UlY25zRaHuNxXdiF0AiFrAwc5APGNuVKF2w0sLQRKrsB2oCEhCFY_7NviY4dA/exec";
+  // رابط الموقع العام (index.html) — قد يكون على مستودع/نطاق مختلف تماماً عن admin.html
+  const PUBLIC_SITE_URL = "https://apexa5521-hue.github.io/quality-IbrahimAlluhaydiportfolio/index_1.html";
 </script>
 
 <!-- iframe مخفي: كل النماذج ترسل عبره لتفادي مشاكل CORS -->
@@ -56,7 +58,10 @@
   <header class="bg-navy-950 text-white sticky top-0 z-40 border-b border-white/10">
     <div class="max-w-4xl mx-auto px-5 py-4 flex items-center justify-between">
       <h1 class="font-display font-bold text-base">لوحة تعديل البورتفوليو</h1>
-      <a href="index.html" target="_blank" class="text-xs text-teal-300 border border-teal-400/40 rounded-full px-4 py-1.5 hover:bg-teal-400/10">فتح الصفحة العامة ↗</a>
+      <div class="flex items-center gap-2">
+        <button type="button" id="refresh-btn" class="text-xs text-slate-300 border border-white/15 rounded-full px-4 py-1.5 hover:bg-white/5">🔄 تحديث من الشيت</button>
+        <a id="public-site-link" href="#" target="_blank" class="text-xs text-teal-300 border border-teal-400/40 rounded-full px-4 py-1.5 hover:bg-teal-400/10">فتح الصفحة العامة ↗</a>
+      </div>
     </div>
   </header>
 
@@ -279,6 +284,11 @@
   // كل نماذج upsert/save تُرسل إلى GAS_WEB_APP_URL مباشرة
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('bio-form').action = GAS_WEB_APP_URL;
+    document.getElementById('public-site-link').href = PUBLIC_SITE_URL;
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      loadAllData();
+      showToast('جاري التحديث من الشيت...', 'success');
+    });
   });
 
   // =====================================================================
